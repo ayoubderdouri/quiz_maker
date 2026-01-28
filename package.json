@@ -8,10 +8,22 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "dependencies": {
+    "lucide-react": "^0.563.0",
     "next": "16.1.6",
+    "openai": "^6.16.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "sql.js": "^1.13.0",
+    "survey-core": "^2.5.8",
+    "survey-creator-core": "^2.5.8",
+    "survey-creator-react": "^2.5.8",
+    "survey-react-ui": "^2.5.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
