@@ -69,10 +69,43 @@ export default function QuizCreator({ quiz, onSurveyUpdate }) {
     setShowAIModal(true);
   };
 
-  const handleGenerateQuiz = (data) => {
-    console.log('Generating quiz with:', data);
-    // TODO: Implement AI generation API call
-    alert(`Génération du quiz:\nNiveau: ${data.niveau}\nPrompt: ${data.prompt}\nFichiers: ${data.files.length}`);
+  const handleGenerateQuiz = async (data) => {
+    try {
+      // Afficher un message de chargement
+      if (!creator) return;
+      
+      // Appeler l'API pour générer le quiz
+      const response = await fetch('/api/generate-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: data.prompt,
+          niveau: data.niveau,
+          // Les fichiers PDF seront gérés plus tard si nécessaire
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.surveyData) {
+        // Mettre à jour le creator avec les nouvelles données du quiz
+        creator.JSON = result.surveyData;
+        
+        // Notifier le parent du changement
+        if (onSurveyUpdate) {
+          onSurveyUpdate(result.surveyData);
+        }
+
+        alert('Quiz généré avec succès !');
+      } else {
+        alert('Erreur lors de la génération : ' + (result.error || 'Erreur inconnue'));
+      }
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      alert('Erreur lors de la génération du quiz : ' + error.message);
+    }
   };
 
   if (!creator) {
