@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, FileText, Plus, TrendingUp, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, TrendingUp, Settings } from 'lucide-react';
 
 export default function Sidebar() {
   const [activeItem, setActiveItem] = useState('dashboard');
@@ -10,7 +10,6 @@ export default function Sidebar() {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/' },
     { id: 'quizzes', label: 'Quizzes', icon: FileText, href: '/quizzes' },
-    { id: 'create', label: 'Create Quiz', icon: Plus, href: '/create' },
     { id: 'results', label: 'Results', icon: TrendingUp, href: '/results' },
     { id: 'settings', label: 'Settings', icon: Settings, href: '/settings' },
   ];
@@ -23,7 +22,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">Q</span>
           </div>
-          <span className="font-semibold text-lg">Quiz Maker</span>
+          <span className="font-semibold text-lg">Maker</span>
         </div>
       </div>
 

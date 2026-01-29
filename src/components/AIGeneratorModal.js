@@ -1,13 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Upload, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { X, Upload, Sparkles, Loader } from 'lucide-react';
+import { generateQuizWithAI, createQuiz } from '@/lib/quizApiClient';
 
-export default function AIGeneratorModal({ isOpen, onClose, onGenerate }) {
+/**
+ * Modal de création de quiz via IA
+ * Génère une enquête SurveyJS et crée le quiz dans la BD
+ */
+export default function AIGeneratorModal({ isOpen, onClose, onSuccess }) {
+  const router = useRouter();
   const [prompt, setPrompt] = useState('');
   const [niveau, setNiveau] = useState('intermediate');
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   if (!isOpen) return null;
 
@@ -43,23 +52,57 @@ export default function AIGeneratorModal({ isOpen, onClose, onGenerate }) {
     setFiles(files.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!prompt.trim()) {
-      alert('Veuillez entrer un prompt');
+      setError('Veuillez entrer une description pour le quiz');
       return;
     }
 
-    onGenerate({
-      prompt,
-      niveau,
-      files
-    });
+    setLoading(true);
+    setError(null);
 
-    // Reset form
-    setPrompt('');
-    setNiveau('intermediate');
-    setFiles([]);
-    onClose();
+    try {
+      // Appel à l'API IA pour générer le surveyData
+      const generateResult = await generateQuizWithAI(prompt, niveau, files);
+      
+      if (!generateResult.success) {
+        setError(generateResult.error || 'Erreur lors de la génération');
+        setLoading(false);
+        return;
+      }
+
+      // Créer le quiz avec les données générées
+      const surveyData = generateResult.surveyData;
+      const title = surveyData.title || `Quiz: ${prompt.substring(0, 50)}`;
+      const description = surveyData.description || prompt;
+
+      const createResult = await createQuiz(title, description, surveyData);
+      
+      if (!createResult.success) {
+        setError(createResult.error || 'Erreur lors de la création du quiz');
+        setLoading(false);
+        return;
+      }
+
+      // Succès : réinitialiser et fermer
+      setPrompt('');
+      setNiveau('intermediate');
+      setFiles([]);
+      onClose();
+      
+      // Callback pour recharger la liste
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      // Optionnel : rediriger vers l'édition du quiz créé
+      // router.push(`/quizzes/${createResult.data.id}/edit`);
+
+    } catch (err) {
+      setError(err.message || 'Erreur lors du traitement');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -90,6 +133,11 @@ export default function AIGeneratorModal({ isOpen, onClose, onGenerate }) {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {error && (
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
           {/* Prompt Input */}
           <div>
             <label className="block text-sm font-medium text-zinc-900 dark:text-white mb-2">
@@ -195,17 +243,28 @@ export default function AIGeneratorModal({ isOpen, onClose, onGenerate }) {
         <div className="flex items-center justify-end gap-3 p-6 border-t border-zinc-200 dark:border-zinc-800">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+            disabled={loading}
+            className="px-6 py-2.5 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50"
           >
             Annuler
           </button>
           <button
             onClick={handleSubmit}
-            className="px-6 py-2.5 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
+            disabled={loading}
+            className="px-6 py-2.5 text-white rounded-lg transition-colors font-medium flex items-center gap-2 disabled:opacity-50"
             style={{ backgroundColor: '#155dfc' }}
           >
-            <Sparkles className="w-4 h-4" />
-            Générer le Quiz
+            {loading ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Génération en cours...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Générer le Quiz
+              </>
+            )}
           </button>
         </div>
       </div>
