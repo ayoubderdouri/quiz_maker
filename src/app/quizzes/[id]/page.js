@@ -74,14 +74,6 @@ export default function QuizViewPage() {
             <ArrowLeft className="w-5 h-5" />
             Retour
           </button>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-            {quiz.title}
-          </h1>
-          {quiz.description && (
-            <p className="text-zinc-600 dark:text-zinc-400 mt-2">
-              {quiz.description}
-            </p>
-          )}
         </div>
       </div>
 

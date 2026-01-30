@@ -1,40 +1,52 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { Survey } from 'survey-react-ui';
-import 'survey-core/survey-core.css';
+import { useEffect, useMemo } from "react";
+import { Model } from "survey-core";
+import { Survey } from "survey-react-ui";
+import "survey-core/survey.i18n";
+import "survey-core/survey-core.css";
+import { customThemeVariables } from "./SurveyCreator/theme_json";
 
-/**
- * Composant pour prévisualiser un quiz (mode read-only)
- * Affiche le quiz complet sans édition possible
- */
-export default function SurveyPreview({ surveyData, onComplete }) {
-  const surveyRef = useRef(null);
+export default function SurveyPreview({
+  surveyData,
+  responseData,
+  onComplete,
+}) {
+  const survey = useMemo(() => {
+    if (!surveyData) return null;
 
-  useEffect(() => {
-    if (!surveyData) return;
+    const model = new Model(surveyData);
 
-    // Configuration SurveyJS pour la prévisualisation (read-only)
-    const survey = new Survey.Model(surveyData);
-    
-    // Mode read-only
-    survey.mode = 'display';
-    survey.showQuestionNumbers = 'off';
-    survey.showCompletedPage = false;
+    // Appliquer le thème custom avec les variables CSS
+    model.applyTheme({
+      cssVariables: {
 
-    // Événements
-    if (onComplete) {
-      survey.onComplete.add(() => {
-        onComplete(survey.data);
-      });
+        "--font-size": "20px",
+        "--sjs-toc-font-size": "40px",
+        "--sjs-general-backcolor": "#ffffff",
+        "--sjs-general-forecolor": "#222",
+        "--sjs-primary-backcolor": "#155dfcFF",
+        "--sjs-primary-forecolor": "#fff",
+        "--sjs-border-default": "#ddd",
+        "--sjs-border-hover": "#155dfcFF",
+      },
+    });
+    model.mode = "display";
+    model.readOnly = true;
+    model.showQuestionNumbers = "off";
+    model.showCompletedPage = false;
+    model.locale = "fr";
+
+    if (responseData) {
+      model.data = responseData;
     }
 
-    survey.render(surveyRef.current);
+    if (onComplete) {
+      model.onComplete.add(() => onComplete(model.data));
+    }
 
-    return () => {
-      survey.dispose();
-    };
-  }, [surveyData, onComplete]);
+    return model;
+  }, [surveyData, responseData, onComplete]);
 
   if (!surveyData) {
     return (
@@ -44,5 +56,7 @@ export default function SurveyPreview({ surveyData, onComplete }) {
     );
   }
 
-  return <div ref={surveyRef} />;
+  if (!survey) return null;
+
+  return <Survey model={survey} />;
 }

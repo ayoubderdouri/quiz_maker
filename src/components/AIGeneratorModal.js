@@ -1,16 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { X, Upload, Sparkles, Loader } from 'lucide-react';
-import { generateQuizWithAI, createQuiz } from '@/lib/quizApiClient';
+import { generateQuizWithAI } from '@/lib/quizApiClient';
 
 /**
- * Modal de création de quiz via IA
- * Génère une enquête SurveyJS et crée le quiz dans la BD
+ * Modal de génération de quiz via IA
+ * Met à jour le quiz ouvert dans l'éditeur au lieu de créer un nouveau
  */
-export default function AIGeneratorModal({ isOpen, onClose, onSuccess }) {
-  const router = useRouter();
+export default function AIGeneratorModal({ isOpen, onClose, onGenerate, onSuccess }) {
   const [prompt, setPrompt] = useState('');
   const [niveau, setNiveau] = useState('intermediate');
   const [files, setFiles] = useState([]);
@@ -71,17 +69,10 @@ export default function AIGeneratorModal({ isOpen, onClose, onSuccess }) {
         return;
       }
 
-      // Créer le quiz avec les données générées
+      // Mettre à jour le quiz existant via le callback onGenerate
       const surveyData = generateResult.surveyData;
-      const title = surveyData.title || `Quiz: ${prompt.substring(0, 50)}`;
-      const description = surveyData.description || prompt;
-
-      const createResult = await createQuiz(title, description, surveyData);
-      
-      if (!createResult.success) {
-        setError(createResult.error || 'Erreur lors de la création du quiz');
-        setLoading(false);
-        return;
+      if (onGenerate) {
+        onGenerate({ surveyData });
       }
 
       // Succès : réinitialiser et fermer
@@ -90,13 +81,10 @@ export default function AIGeneratorModal({ isOpen, onClose, onSuccess }) {
       setFiles([]);
       onClose();
       
-      // Callback pour recharger la liste
+      // Callback optionnel
       if (onSuccess) {
         onSuccess();
       }
-
-      // Optionnel : rediriger vers l'édition du quiz créé
-      // router.push(`/quizzes/${createResult.data.id}/edit`);
 
     } catch (err) {
       setError(err.message || 'Erreur lors du traitement');
