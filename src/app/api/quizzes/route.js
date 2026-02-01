@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { verifyAuth, createUnauthorizedResponse } from '@/lib/apiAuth';
 
 /**
  * GET /api/quizzes
@@ -8,6 +9,12 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(request) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const { searchParams } = new URL(request.url);
     const skip = parseInt(searchParams.get('skip') || '0');
     const take = parseInt(searchParams.get('take') || '10');
@@ -52,6 +59,12 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const body = await request.json();
     const { title, description, surveyData, status = 'draft' } = body;
 

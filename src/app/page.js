@@ -1,209 +1,126 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, FileText, TrendingUp, BarChart3 } from "lucide-react";
-import { getAllQuizzes, getQuizResponses } from "@/lib/quizApiClient";
-import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { authHelpers } from "@/lib/authHelpers";
+import { ArrowRight, Zap, Users, BarChart3 } from "lucide-react";
 
-export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalQuizzes: 0,
-    totalResponses: 0,
-    avgResponsesPerQuiz: 0,
-  });
-  const [loading, setLoading] = useState(true);
+export default function Home() {
+	const router = useRouter();
+	const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
+	useEffect(() => {
+		// Si l'utilisateur est authentifié, le rediriger vers les quiz
+		const token = authHelpers.getToken();
+		if (token) {
+			router.push("/dashboard");
+		} else {
+			setIsLoading(false);
+		}
+	}, [router]);
 
-  const loadDashboardData = async () => {
-    try {
-      const quizzes = await getAllQuizzes(0, 100);
-      setStats((prev) => ({
-        ...prev,
-        totalQuizzes: quizzes.length,
-      }));
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center h-screen bg-gradient-to-br from-white to-blue-50">
+				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+			</div>
+		);
+	}
 
-      let totalResponses = 0;
-      for (const quiz of quizzes) {
-        const result = await getQuizResponses(quiz.id);
-        if (result.success) {
-          totalResponses += result.count || 0;
-        }
-      }
+	return (
+		<div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white text-zinc-900">
+			{/* Navigation */}
+			<nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto border-b border-zinc-200">
+				<div className="flex items-center gap-2">
+					<div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+						<span className="font-bold text-xl text-white">Q</span>
+					</div>
+					<span className="font-bold text-xl text-zinc-900">Maker</span>
+				</div>
 
-      setStats((prev) => ({
-        ...prev,
-        totalResponses,
-        avgResponsesPerQuiz:
-          quizzes.length > 0 ? (totalResponses / quizzes.length).toFixed(1) : 0,
-      }));
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+				<div className="flex items-center gap-4">
+					<Link
+						href="/auth/login"
+						className="px-6 py-2.5 text-zinc-700 hover:text-blue-600 transition"
+					>
+						Connexion
+					</Link>
+					<Link
+						href="/auth/register"
+						className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition"
+					>
+						S'inscrire
+					</Link>
+				</div>
+			</nav>
 
-  return (
-    <AuthenticatedLayout>
-      <div className="space-y-8 p-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-white">
-            Dashboard
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400 mt-2">
-            Bienvenue sur Quiz Maker - Voici un aperçu de vos activités
-          </p>
-        </div>
+			{/* Hero Section */}
+			<section className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-6 text-center">
+				<div className="max-w-2xl">
+					<h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+						Créez des Quiz Intelligents
+					</h1>
+					<p className="text-xl text-zinc-600 mb-8">
+						Générez des quiz professionnels instantanément avec l'IA. Partagez-les, collectez des réponses et analysez les résultats en temps réel.
+					</p>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Total Quizzes */}
-          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Quiz créés
-                  </p>
-                  <p className="text-2xl font-bold text-zinc-900 dark:text-white">
-                    {loading ? "-" : stats.totalQuizzes}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <Link
-              href="/quizzes"
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Voir tous les quiz →
-            </Link>
-          </div>
+					<div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+						<Link
+							href="/auth/register"
+							className="flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition w-full sm:w-auto justify-center"
+						>
+							Commencer Gratuitement
+							<ArrowRight className="w-5 h-5" />
+						</Link>
+						<Link
+							href="/auth/login"
+							className="px-8 py-3 border border-zinc-300 hover:border-zinc-400 text-zinc-900 rounded-lg font-semibold transition"
+						>
+							J'ai déjà un compte
+						</Link>
+					</div>
 
-          {/* Total Responses */}
-          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Réponses collectées
-                  </p>
-                  <p className="text-2xl font-bold text-zinc-900 dark:text-white">
-                    {loading ? "-" : stats.totalResponses}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <Link
-              href="/results"
-              className="text-sm text-green-600 dark:text-green-400 hover:underline"
-            >
-              Consulter les résultats →
-            </Link>
-          </div>
+					{/* Features */}
+					<div className="grid md:grid-cols-3 gap-8 mt-16">
+						<div className="p-6 rounded-lg bg-white border border-zinc-200 hover:border-blue-300 shadow-sm hover:shadow-md transition">
+							<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+								<Zap className="w-6 h-6 text-blue-600" />
+							</div>
+							<h3 className="font-semibold text-lg mb-2 text-zinc-900">Génération IA</h3>
+							<p className="text-zinc-600">
+								Créez des quiz professionnels en secondes avec l'intelligence artificielle
+							</p>
+						</div>
 
-          {/* Avg Responses */}
-          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Moy. par quiz
-                  </p>
-                  <p className="text-2xl font-bold text-zinc-900 dark:text-white">
-                    {loading ? "-" : stats.avgResponsesPerQuiz}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-500">
-              Moyenne de réponses par quiz
-            </p>
-          </div>
-        </div>
+						<div className="p-6 rounded-lg bg-white border border-zinc-200 hover:border-blue-300 shadow-sm hover:shadow-md transition">
+							<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+								<Users className="w-6 h-6 text-blue-600" />
+							</div>
+							<h3 className="font-semibold text-lg mb-2 text-zinc-900">Partage Facile</h3>
+							<p className="text-zinc-600">
+								Partagez vos quiz avec des liens uniques sans nécessiter d'authentification
+							</p>
+						</div>
 
-        {/* Quick Actions */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-800 rounded-lg p-8 text-white">
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold mb-2">Commencer</h2>
-            <p className="text-blue-100 mb-6">
-              Créez un nouveau quiz, gérez vos quiz existants ou consultez vos
-              résultats.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/quizzes"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-              >
-                <FileText className="w-4 h-4" />
-                Mes Quiz
-              </Link>
-              <Link
-                href="/results"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
-              >
-                <TrendingUp className="w-4 h-4" />
-                Résultats
-              </Link>
-            </div>
-          </div>
-        </div>
+						<div className="p-6 rounded-lg bg-white border border-zinc-200 hover:border-blue-300 shadow-sm hover:shadow-md transition">
+							<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+								<BarChart3 className="w-6 h-6 text-blue-600" />
+							</div>
+							<h3 className="font-semibold text-lg mb-2 text-zinc-900">Analyse</h3>
+							<p className="text-zinc-600">
+								Consultez les résultats et les statistiques de vos quiz en temps réel
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
 
-        {/* Features */}
-        <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">
-            Fonctionnalités
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                📝 Créer des Quiz
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Créez des quiz interactifs avec une interface intuitive.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                🤖 Génération IA
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Générez automatiquement des quiz avec l'intelligence
-                artificielle.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                🔗 Partage facile
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Générez des liens de partage pour vos quiz.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700">
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">
-                📊 Analyse des résultats
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Consultez et analysez les réponses collectées.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </AuthenticatedLayout>
-  );
+			{/* Footer */}
+			<footer className="border-t border-zinc-200 py-6 px-6 text-center text-zinc-500 text-sm bg-zinc-50">
+				<p>&copy; 2026 Quiz Maker. Tous droits réservés.</p>
+			</footer>
+		</div>
+	);
 }
+

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { verifyAuth, createUnauthorizedResponse } from '@/lib/apiAuth';
 
 /**
  * GET /api/quizzes/:id
@@ -7,6 +8,12 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(request, { params }) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const { id } = await params;
 
     if (!id) {
@@ -47,6 +54,12 @@ export async function GET(request, { params }) {
  */
 export async function PUT(request, { params }) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const { id } = await params;
 
     if (!id) {
@@ -104,6 +117,12 @@ export async function PUT(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const { id } = await params;
 
     if (!id) {

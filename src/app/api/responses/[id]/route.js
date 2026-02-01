@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { verifyAuth, createUnauthorizedResponse } from '@/lib/apiAuth';
 
 /**
  * GET /api/responses/:id
@@ -7,6 +8,12 @@ import { NextResponse } from 'next/server';
  */
 export async function GET(request, context) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const { params } = context || {};
     const resolvedParams = params ? await params : {};
     const { id } = resolvedParams;

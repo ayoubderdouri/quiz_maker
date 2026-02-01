@@ -1,14 +1,14 @@
-import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+"use client";
 
-export const metadata = {
-  title: "Quiz Maker",
-  description: "Create and manage quizzes",
-};
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+import { ProtectedLayout } from "@/components/ProtectedLayout";
 
 export default function QuizLayout({ children }) {
   return (
-    <AuthenticatedLayout>
-      {children}
-    </AuthenticatedLayout>
+    <ProtectedLayout>
+      <AuthenticatedLayout>
+        {children}
+      </AuthenticatedLayout>
+    </ProtectedLayout>
   );
 }

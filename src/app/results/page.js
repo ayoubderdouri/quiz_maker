@@ -116,7 +116,7 @@ export default function ResultsPage() {
               </div>
               <button
                 onClick={() => loadResponses(selectedQuizId)}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition w-full sm:w-auto"
+                className="inline-flex items-center mt-6 justify-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition w-full sm:w-auto"
               >
                 <RefreshCw className="w-4 h-4" />
                 Rafraîchir
@@ -157,39 +157,46 @@ export default function ResultsPage() {
                 Aucune réponse collectée pour ce quiz.
               </div>
             ) : (
-              <div className="space-y-3 md:space-y-4">
-                {responses.map((response, index) => (
-                  <div
-                    key={response.id || index}
-                    className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 md:p-4"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                      <div>
-                        <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                          Réponse #{responses.length - index}
-                        </p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-200 dark:border-zinc-700">
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-zinc-900 dark:text-white">
+                        ID
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-zinc-900 dark:text-white">
+                        Date
+                      </th>
+                      <th className="text-right py-3 px-4 text-sm font-semibold text-zinc-900 dark:text-white">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {responses.map((response, index) => (
+                      <tr
+                        key={response.id || index}
+                        className="border-b border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                      >
+                        <td className="py-3 px-4 text-sm text-zinc-700 dark:text-zinc-300 font-mono">
+                          {response.id}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-zinc-700 dark:text-zinc-300">
                           {formatDate(response.createdAt)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <span className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                          ID: {response.id}
-                        </span>
-                        <Link
-                          href={`/results/${response.id}/preview`}
-                          className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
-                        >
-                          <Eye className="w-3 h-3" />
-                          Voir
-                        </Link>
-                      </div>
-                    </div>
-                    <pre className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-2 md:p-3 text-xs text-zinc-700 dark:text-zinc-200 overflow-auto max-h-60">
-                      {JSON.stringify(response.data || {}, null, 2)}
-                    </pre>
-                  </div>
-                ))}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <Link
+                            href={`/results/${response.id}/preview`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Voir détails
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

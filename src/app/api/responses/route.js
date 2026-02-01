@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 /**
  * POST /api/responses
  * Save a guest response to a quiz
+ * No authentication required - allows anonymous submissions via shared links
  */
 export async function POST(request) {
   try {

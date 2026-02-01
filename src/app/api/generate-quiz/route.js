@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 import https from 'https';
+import { verifyAuth, createUnauthorizedResponse } from '@/lib/apiAuth';
 
 export async function POST(request) {
   try {
+    // Vérifier l'authentification
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated) {
+      return createUnauthorizedResponse(auth.error);
+    }
+
     const { prompt, niveau } = await request.json();
 
     const niveauMap = {

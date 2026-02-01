@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, AlertCircle, Loader } from 'lucide-react';
 import SurveyPreview from '@/components/SurveyPreview';
+import apiClient from '@/lib/axiosInstance';
 
 export default function ResultPreviewPage() {
   const params = useParams();
@@ -24,10 +25,10 @@ export default function ResultPreviewPage() {
       setLoading(true);
       setError('');
 
-      const response = await fetch(`/api/responses/${id}`);
-      const data = await response.json();
+      const response = await apiClient.get(`/responses/${id}`);
+      const data = response.data;
 
-      if (!response.ok || !data?.success) {
+      if (!data?.success) {
         throw new Error(data?.error || 'Résultat introuvable');
       }
 
