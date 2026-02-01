@@ -67,19 +67,19 @@ export default function ResultsPage() {
   }, [selectedQuizId]);
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
             Résultats
           </h1>
-          <p className="text-zinc-600 dark:text-zinc-400 mt-1">
+          <p className="text-sm md:text-base text-zinc-600 dark:text-zinc-400 mt-1">
             Consultez les réponses collectées par quiz
           </p>
         </div>
         <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-          <TrendingUp className="w-5 h-5" />
-          <span className="text-sm">Suivi des performances</span>
+          <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
+          <span className="text-xs md:text-sm">Suivi des performances</span>
         </div>
       </div>
 
@@ -96,30 +96,32 @@ export default function ResultsPage() {
         </div>
       ) : (
         <>
-          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                Quiz sélectionné
-              </span>
-              <select
-                value={selectedQuizId}
-                onChange={(event) => setSelectedQuizId(event.target.value)}
-                className="min-w-[260px] rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-800 dark:text-zinc-100"
+          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 flex flex-col gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex flex-col gap-2 flex-1">
+                <span className="text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                  Quiz sélectionné
+                </span>
+                <select
+                  value={selectedQuizId}
+                  onChange={(event) => setSelectedQuizId(event.target.value)}
+                  className="w-full sm:min-w-[260px] rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-800 dark:text-zinc-100"
+                >
+                  {quizzes.map((quiz) => (
+                    <option key={quiz.id} value={quiz.id}>
+                      {quiz.title || 'Quiz sans titre'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => loadResponses(selectedQuizId)}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition w-full sm:w-auto"
               >
-                {quizzes.map((quiz) => (
-                  <option key={quiz.id} value={quiz.id}>
-                    {quiz.title || 'Quiz sans titre'}
-                  </option>
-                ))}
-              </select>
+                <RefreshCw className="w-4 h-4" />
+                Rafraîchir
+              </button>
             </div>
-            <button
-              onClick={() => loadResponses(selectedQuizId)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Rafraîchir
-            </button>
           </div>
 
           {error && (
@@ -128,19 +130,19 @@ export default function ResultsPage() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <div className="flex-1">
+                <h2 className="text-lg md:text-xl font-semibold text-zinc-900 dark:text-white">
                   {selectedQuiz?.title || 'Résultats'}
                 </h2>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                   {selectedQuiz?.description || 'Aucune description disponible'}
                 </p>
               </div>
-              <div className="text-right">
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">Total réponses</span>
-                <p className="text-2xl font-semibold text-zinc-900 dark:text-white">
+              <div className="text-left sm:text-right">
+                <span className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400">Total réponses</span>
+                <p className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-white">
                   {responses.length}
                 </p>
               </div>
@@ -155,13 +157,13 @@ export default function ResultsPage() {
                 Aucune réponse collectée pour ce quiz.
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {responses.map((response, index) => (
                   <div
                     key={response.id || index}
-                    className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-4"
+                    className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 md:p-4"
                   >
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                       <div>
                         <p className="text-sm font-medium text-zinc-900 dark:text-white">
                           Réponse #{responses.length - index}
@@ -170,20 +172,20 @@ export default function ResultsPage() {
                           {formatDate(response.createdAt)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                           ID: {response.id}
                         </span>
                         <Link
                           href={`/results/${response.id}/preview`}
-                          className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
                         >
                           <Eye className="w-3 h-3" />
                           Voir
                         </Link>
                       </div>
                     </div>
-                    <pre className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 text-xs text-zinc-700 dark:text-zinc-200 overflow-auto">
+                    <pre className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-2 md:p-3 text-xs text-zinc-700 dark:text-zinc-200 overflow-auto max-h-60">
                       {JSON.stringify(response.data || {}, null, 2)}
                     </pre>
                   </div>
