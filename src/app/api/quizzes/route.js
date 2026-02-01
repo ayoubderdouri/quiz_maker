@@ -4,7 +4,7 @@ import { verifyAuth, createUnauthorizedResponse } from '@/lib/apiAuth';
 
 /**
  * GET /api/quizzes
- * Récupère la liste de tous les quiz
+ * Récupère la liste des quiz de l'utilisateur connecté
  * Query params: skip (default: 0), take (default: 10)
  */
 export async function GET(request) {
@@ -21,11 +21,12 @@ export async function GET(request) {
 
     const [quizzes, total] = await Promise.all([
       prisma.quiz.findMany({
+        where: { userId: auth.userId },
         orderBy: { id: 'desc' },
         skip,
         take
       }),
-      prisma.quiz.count()
+      prisma.quiz.count({ where: { userId: auth.userId } })
     ]);
 
     const payload = quizzes.map((quiz) => ({
@@ -77,6 +78,7 @@ export async function POST(request) {
 
     const quiz = await prisma.quiz.create({
       data: {
+        userId: auth.userId,
         data: {
           title,
           description: description || '',

@@ -23,6 +23,7 @@ export async function verifyAuth(request) {
 		return {
 			authenticated: true,
 			user: verified.payload,
+			userId: verified.payload.id,
 		};
 	} catch (error) {
 		return {

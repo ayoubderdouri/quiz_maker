@@ -34,6 +34,14 @@ export async function GET(request, { params }) {
       );
     }
 
+    // Vérifier que l'utilisateur est propriétaire du quiz
+    if (quiz.userId !== auth.userId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       data: { id: quiz.id, ...(quiz.data || {}) }
@@ -80,6 +88,14 @@ export async function PUT(request, { params }) {
       return NextResponse.json(
         { success: false, error: 'Quiz not found' },
         { status: 404 }
+      );
+    }
+
+    // Vérifier que l'utilisateur est propriétaire du quiz
+    if (existingQuiz.userId !== auth.userId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 403 }
       );
     }
 
@@ -140,6 +156,14 @@ export async function DELETE(request, { params }) {
       return NextResponse.json(
         { success: false, error: 'Quiz not found' },
         { status: 404 }
+      );
+    }
+
+    // Vérifier que l'utilisateur est propriétaire du quiz
+    if (existingQuiz.userId !== auth.userId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 403 }
       );
     }
 

@@ -9,6 +9,8 @@ datasource db {
 
 model Quiz {
   id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   data      Json
   shareToken String?     @unique
   responses Response[]
@@ -27,6 +29,7 @@ model User {
   email     String    @unique
   name      String
   password  String
+  quizzes   Quiz[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }

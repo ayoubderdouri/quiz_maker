@@ -138,7 +138,7 @@ export async function deleteQuiz(id) {
  */
 export async function generateQuizWithAI(prompt, niveau, files = []) {
   try {
-    const response = await apiClient.post('/api/generate-quiz', {
+    const response = await apiClient.post('/generate-quiz', {
       prompt,
       niveau,
       files
