@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllQuizzes, deleteQuiz, getShareLink, generateShareLink } from '@/lib/quizApiClient';
 import CreateQuizModal from '@/components/CreateQuizModal';
-import { FileText, Plus, Trash2, Edit, Eye, Share2, Copy, Check } from 'lucide-react';
+import { FileText, Plus, Trash2, Edit, Eye, Share2, Copy, Check, Link, X } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function QuizzesPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function QuizzesPage() {
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     loadQuizzes();
@@ -25,15 +27,38 @@ export default function QuizzesPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce quiz ?')) {
+    const result = await Swal.fire({
+      title: 'Êtes-vous sûr ?',
+      text: 'Cette action supprimera définitivement ce quiz',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
 
-    const result = await deleteQuiz(id);
-    if (result.success) {
+    const deleteResult = await deleteQuiz(id);
+    if (deleteResult.success) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Supprimé !',
+        text: 'Le quiz a été supprimé avec succès',
+        timer: 2000,
+        showConfirmButton: false
+      });
       loadQuizzes();
     } else {
-      alert('Erreur lors de la suppression : ' + result.error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: deleteResult.error || 'Une erreur est survenue lors de la suppression'
+      });
     }
   };
 
@@ -50,7 +75,11 @@ export default function QuizzesPage() {
       if (result.success && result.shareUrl) {
         navigator.clipboard.writeText(result.shareUrl);
         setCopiedId(quizId);
-        setTimeout(() => setCopiedId(null), 2000);
+        setShowToast(true);
+        setTimeout(() => {
+          setCopiedId(null);
+          setShowToast(false);
+        }, 3000);
       } else {
         alert('Erreur : ' + (result.error || 'Impossible de générer le lien'));
       }
@@ -67,6 +96,23 @@ export default function QuizzesPage() {
 
   return (
     <div className="space-y-6 p-6">
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed top-4 right-1/3 z-50 animate-in slide-in-from-top-5 fade-in duration-300">
+          <div className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+            <Check className="w-5 h-5" />
+            <span className="font-medium">Lien de partage copié !</span>
+            <button
+              onClick={() => setShowToast(false)}
+              className="ml-2 hover:bg-green-700 rounded p-1 transition-colors"
+              aria-label="Fermer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -126,11 +172,6 @@ export default function QuizzesPage() {
                       {quiz.title}
                     </h3>
                   </div>
-                  {quiz.status && (
-                    <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-700 rounded text-xs font-medium whitespace-nowrap flex-shrink-0">
-                      {quiz.status === 'draft' ? '📝' : '✅'}
-                    </span>
-                  )}
                 </div>
 
                 {quiz.description && (
@@ -177,7 +218,7 @@ export default function QuizzesPage() {
                     </>
                   ) : (
                     <>
-                      <Share2 className="w-4 h-4" />
+                      <Link className="w-4 h-4" />
                       <span className="text-xs">Partage</span>
                     </>
                   )}
