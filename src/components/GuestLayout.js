@@ -27,9 +27,13 @@ export default function GuestLayout({ children }) {
           </nav>
         </div>
       </header>
-      <main className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6">
+      <main>
         {children}
       </main>
+
+      <footer className="border-t border-zinc-200 py-6 px-6 text-center text-zinc-500 text-sm bg-white/80">
+				<p>&copy; 2026 Quiz Maker. Tous droits réservés.</p>
+			</footer>
     </div>
   );
 }
