@@ -10,8 +10,8 @@ import { registerCreatorTheme } from "survey-creator-core";
 import "survey-core/survey-core.css";
 import "survey-creator-core/survey-creator-core.css";
 import { customThemeVariables } from "./SurveyCreator/theme_json";
-import { Sparkles } from 'lucide-react';
-import AIGeneratorModal from './AIGeneratorModal';
+import { Sparkles } from "lucide-react";
+import AIGeneratorModal from "./AIGeneratorModal";
 
 registerCreatorTheme(SurveyCreatorTheme);
 
@@ -43,6 +43,21 @@ export default function QuizCreator({ quiz, onSurveyUpdate }) {
 
     newCreator.applyCreatorTheme(customTheme);
 
+    newCreator.onSurveyInstanceCreated.add((sender, options) => {
+      options.survey.applyTheme({
+        cssVariables: {
+          "--font-size": "20px",
+          "--sjs-toc-font-size": "40px",
+          "--sjs-general-backcolor": "#ffffff",
+          "--sjs-general-forecolor": "#222",
+          "--sjs-primary-backcolor": "#155dfcFF",
+          "--sjs-primary-forecolor": "#fff",
+          "--sjs-border-default": "#ddd",
+          "--sjs-border-hover": "#155dfcFF",
+        },
+      });
+    });
+
     // Charger les données du quiz
     if (quiz && quiz.surveyData) {
       newCreator.JSON = quiz.surveyData;
@@ -73,19 +88,19 @@ export default function QuizCreator({ quiz, onSurveyUpdate }) {
     try {
       // Afficher un message de chargement
       if (!creator) return;
-      
+
       // Mettre à jour le creator avec les nouvelles données du quiz
       creator.JSON = data.surveyData;
-      
+
       // Notifier le parent du changement
       if (onSurveyUpdate) {
         onSurveyUpdate(data.surveyData);
       }
 
-      alert('Quiz généré et mis à jour avec succès !');
+      alert("Quiz généré et mis à jour avec succès !");
     } catch (error) {
-      console.error('Error generating quiz:', error);
-      alert('Erreur lors de la génération du quiz : ' + error.message);
+      console.error("Error generating quiz:", error);
+      alert("Erreur lors de la génération du quiz : " + error.message);
     }
   };
 

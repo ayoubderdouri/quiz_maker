@@ -5,6 +5,7 @@ const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-k
 
 export async function middleware(request) {
 	const path = request.nextUrl.pathname;
+	const method = request.method;
 
 	// Routes publiques (sans authentification requise)
 	const publicRoutes = ["/auth/login", "/auth/register", "/", "/share"];
@@ -15,6 +16,11 @@ export async function middleware(request) {
 		if (route === "/share") return path.startsWith("/share/");
 		return path.startsWith(route);
 	});
+
+	// Autoriser les soumissions anonymes de réponses
+	if (path.startsWith("/api/responses") && method === "POST") {
+		return NextResponse.next();
+	}
 
 	if (isPublicRoute) {
 		return NextResponse.next();
